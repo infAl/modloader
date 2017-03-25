@@ -1,8 +1,10 @@
 package.path = package.path .. ";data/scripts/mods/?.lua"
 package.path = package.path .. ";data/scripts/modloader/?.lua"
 
+
 -- Globally accessible handle
 ModLoader = {}
+ModLoader.Config = require("config")
 
 -- 'Constant' values
 
@@ -13,7 +15,7 @@ local mods = {}
 ModLoader.info = 
 {
 	name="Simple Mod Loader",
-	version={ major=1, minor=1, revision=0 },
+	version={ major=1, minor=2, revision=0 },
 	description="Provides an easy way for mods to be added to the game.",
 	author="infal",
 	website="",
@@ -27,6 +29,9 @@ table.insert(mods, ModLoader)
 -- Modules
 require("lib/tabletostring")
 require("lib/scandir")
+require("lib/registersystemupgradeasloot")
+require("lib/registerplayershipscript")
+require("lib/registerAdminUI")
 require("api/goods")
 
 
@@ -38,13 +43,13 @@ function initialize()
 	-- Scan subdirectories in data/scripts/mods/ for modinfo.lua files
 	local baseDirectory = "data/scripts/mods/"
 	local directories = scandir(baseDirectory, "directories")
-	printlog("<ModLoader> Directories: %s", table.tostring(directories))
+	--printlog("<ModLoader> Directories: %s", table.tostring(directories))
 	if directories then
 		for _, dir in pairs(directories) do
-			printlog("<ModLoader> Scanning dir: %s", baseDirectory .. dir)
+			--printlog("<ModLoader> Scanning dir: %s", baseDirectory .. dir)
 			local files = scandir(baseDirectory .. dir, "files", "*.lua")
 			if files then
-				printlog("<ModLoader> Files: %s", table.tostring(files))
+				--printlog("<ModLoader> Files: %s", table.tostring(files))
 				for _, file in pairs(files) do
 					if string.match(file, "modinfo.lua") then
 						local mod = require(baseDirectory .. dir .. "/" .. string.sub(file, 1, string.len(file)-4))
@@ -83,14 +88,14 @@ function initialize()
 			end
 			if isMatch then
 				if versionOk then
-					printlog("<ModLoader> %s found correct version of %s", mod.info.name, depName)
+					printlog("<ModLoader> %s found correct version of %s\n", mod.info.name, depName)
 				else
-					printlog("<ModLoader> %s found an incorrect version of %s and will be disabled", mod.info.name, depName)
+					printlog("<ModLoader> %s found an incorrect version of %s and will be disabled\n", mod.info.name, depName)
 					mod.isEnabled = false
 				end
 			else
 				printlog("<ModLoader> %s unable to find dependency %s and will be disabled", mod.info.name, depName)
-				printlog("<ModLoader> Is %s installed correctly?", depName)
+				printlog("<ModLoader> Is %s installed correctly?\n", depName)
 				mod.isEnabled = false
 			end
 		end
